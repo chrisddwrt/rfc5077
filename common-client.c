@@ -29,20 +29,23 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+int no_disconnect;
+
 /* Display usage for clients and exit */
 static void
 usage(char * const name) {
-  fail("Usage: %s [-r] [-d {secs}] [-S] [-T] [-C {client_cert}] [-K {client_key} host port\n"
+  fail("Usage: %s [-r times] [-d {secs}] [-S] [-N] [-T] [-C {client_cert}] [-K {client_key} host port\n"
        "\n"
        " Connect to an SSL HTTP server and requests `/'\n"
        "\n"
        "Options:\n"
-       "\t-r: reconnect (may be repeated)\n"
+       "\t-r: times - who many times to reconnect )\n"
        "\t-d: delay between each renegotiation in seconds\n"
        "\t-S: disable support for session identifier\n"
        "\t-T: disable support for tickets\n"
        "\t-C: use a client certificate for the connection and this specifies a certificate as a file in PEM format. Optionally the key can be here too\n"
        "\t-K: use the key {client_key}, a PEM formated key file, in the connection\n"
+       "\t-N: no disconnect - don't close the sessions )\n"
        , name);
 }
 
@@ -60,13 +63,16 @@ int client(int argc, char * const argv[],
   const char *client_cert   = NULL;
   const char *client_key    = NULL;
 
+  no_disconnect=0;
+
   /* Parse arguments */
   opterr = 0;
   start("Parse arguments");
-  while ((opt = getopt(argc, argv, "rd:STC:K:")) != -1) {
+  while ((opt = getopt(argc, argv, "Nr:d:STC:K:")) != -1) {
     switch (opt) {
     case 'r':
-      reconnect++;
+      // reconnect++;
+      reconnect = atoi(optarg);
       break;
     case 'S':
       use_sessionid = 0;
@@ -82,6 +88,9 @@ int client(int argc, char * const argv[],
       break;
     case 'K':
       client_key = optarg;
+      break;
+    case 'N':
+      no_disconnect = 1;
       break;
     default:
       usage(argv[0]);

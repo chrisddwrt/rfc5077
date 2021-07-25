@@ -1,7 +1,8 @@
-CFLAGS=-g -Werror -Wall -ansi -std=c99 -D_POSIX_SOURCE -D_BSD_SOURCE -D_GNU_SOURCE
+CFLAGS=-g -Wall -ansi -std=c99 -D_POSIX_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE -I/opt/openssl/include
 LDFLAGS=
 EVCFLAGS=$(shell pkg-config --silence-errors --cflags libev)
-OPENSSL_LIBS=$(shell pkg-config --libs openssl)
+#OPENSSL_LIBS=$(shell pkg-config --libs openssl)
+OPENSSL_LIBS=-L/opt/openssl/lib /opt/openssl/lib/libssl.a /opt/openssl/lib/libcrypto.a -ldl
 EXEC=rfc5077-client rfc5077-server rfc5077-pcap openssl-client gnutls-client nss-client 
 
 all: $(EXEC)
@@ -10,7 +11,7 @@ openssl-client.o: openssl-client.c
 	$(CC) $(CFLAGS) $(shell pkg-config --cflags openssl) -c -o $@ $^
 
 openssl-client: openssl-client.o common-client.o common.o
-	$(CC) -o $@ $^ $(LDFLAGS) $(OPENSSL_LIBS)
+	$(CC) -o $@ $^ $(LDFLAGS) $(OPENSSL_LIBS) /usr/local/lib/libubox.a 
 
 gnutls-client: gnutls-client.o common-client.o common.o
 	$(CC) -o $@ $^ $(LDFLAGS) -lgnutls
